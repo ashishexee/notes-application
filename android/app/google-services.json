@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "771152336512",
+    "project_id": "myfirst-ashish",
+    "storage_bucket": "myfirst-ashish.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:771152336512:android:ba9c06a8e8c3ac519d7865",
+        "android_client_info": {
+          "package_name": "com.ashish.firstapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcI_WIFACYXdPMDNapAqDX55tyvuxCzLU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
