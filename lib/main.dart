@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
 import 'package:firstapplication/views/notes_view.dart';
 import 'package:firstapplication/views/register_view.dart';
@@ -29,9 +30,9 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomePage(),
       routes: {
-        '/login/': (context) => const LoginView(),
-        '/register/': (context) => const RegisterView(),
-        '/notes/':(context)=> const NotesView(),
+        loginroute: (context) => const LoginView(),
+        registerroute: (context) => const RegisterView(),
+        notesroute: (context) => const NotesView(),
       },
     );
   }

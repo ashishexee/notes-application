@@ -2,6 +2,7 @@
 // import 'package:firstapplication/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
@@ -120,7 +121,7 @@ class _LoginViewState extends State<LoginView> {
                             );
                             if (usercredentials.user != null) {
                               Navigator.of(context).pushNamedAndRemoveUntil(
-                                  '/notes/', (route) => false);
+                                  notesroute, (route) => false);
                             }
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -162,7 +163,7 @@ class _LoginViewState extends State<LoginView> {
                       TextButton(
                           onPressed: () {
                             Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/register/',
+                              registerroute,
                               (route) => false,
                             );
                           },

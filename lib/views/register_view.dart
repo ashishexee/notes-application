@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
@@ -147,7 +148,7 @@ class _RegisterViewState extends State<RegisterView> {
                     TextButton(
                         onPressed: () {
                           Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/login/',
+                            loginroute,
                             (route) => false,
                           );
                         },
