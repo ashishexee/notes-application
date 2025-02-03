@@ -1,16 +1,36 @@
-# firstapplication
+# First Application
 
-A new Flutter project.
+A Flutter application with Firebase authentication functionality.
+
+## Features
+
+- User authentication (sign up/login)
+- Firebase integration
+- Clean and responsive UI
+- Cross-platform support (iOS, Android, Web)
+
+## Prerequisites
+
+Before running this application, make sure you have the following installed:
+
+- Flutter SDK (version ^3.6.1)
+- Firebase CLI
+- A Firebase project set up
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd firstapplication
+```
+lib/
+├── constants/      # Application constants
+├── views/         # UI screens/pages
+└── main.dart      # Entry point
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Dependencies
+flutter_sdk: ^3.6.1
+firebase_core: ^3.10.1
+cupertino_icons: ^1.0.8
