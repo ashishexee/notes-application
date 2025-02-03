@@ -7,7 +7,7 @@ import 'package:firstapplication/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 import 'package:firstapplication/utilities/show_error_dialog.dart'; // currently it is not used
- 
+
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -121,10 +121,21 @@ class _LoginViewState extends State<LoginView> {
                               email: email,
                               password: password,
                             );
-                            if (usercredentials.user != null) {
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user?.emailVerified ?? false) {
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   notesroute, (route) => false);
-                            } 
+                            } else {
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  emailverifyroute, (route) => false);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  'Oops you are not verified! please verify',
+                                ),
+                                backgroundColor: Colors.red,
+                              ));
+                            }
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
