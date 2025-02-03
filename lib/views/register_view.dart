@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
+import 'package:firstapplication/views/verify_email.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
+// my name is ashish singh and i am flutter developer
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -26,10 +28,11 @@ class _RegisterViewState extends State<RegisterView> {
     super.initState();
   }
 
-//ek baar jab init krr dete hai tou dispose krna bhi important hai
+// ek baar jab init krr dete hai tou dispose krna bhi important hai
   @override
   void dispose() {
     _email.dispose();
+
     _password.dispose();
     super.dispose();
   }
@@ -125,16 +128,30 @@ class _RegisterViewState extends State<RegisterView> {
                         try {
                           await FirebaseAuth.instance
                               .createUserWithEmailAndPassword(
-                            email: email,
-                            password: password,
+                                  email: email, password: password);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Succesfully registered',
+                              ),
+                              backgroundColor: Colors.blue,
+                            ),
                           );
+                          final user = FirebaseAuth.instance.currentUser;
+                          await user?.sendEmailVerification();
+                          // // we didnot use pushNamedAndRemoveUntil because we still want to have register view on
+                          // the back of the email verify view so that if in case the user enters a wrong email
+                          // he/she can easily go back using the back button present at the top of appbar
+                          Navigator.of(context).pushNamed(emailverifyroute);
                         } on FirebaseAuthException catch (e) {
-                          if (e.code == 'weak-password') {
-                            devtools.log(
-                                'weak password please choose a better password');
-                          } else if (e.code == 'email-already-in-use') {
-                            devtools.log('Email already in use.');
-                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'An error occured ${e.code}',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
                         }
                       },
                       style: TextButton.styleFrom(
