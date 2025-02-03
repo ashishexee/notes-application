@@ -6,7 +6,8 @@ import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
-
+import 'package:firstapplication/utilities/show_error_dialog.dart'; // currently it is not used
+ 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -41,6 +42,7 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Login Page',
           style: TextStyle(
@@ -122,7 +124,7 @@ class _LoginViewState extends State<LoginView> {
                             if (usercredentials.user != null) {
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   notesroute, (route) => false);
-                            }
+                            } 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -181,28 +183,4 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
-}
- 
- 
- // i havent used this future as i already had a better way to display the error(may be will do in register view)
-Future<void> showerrordialog(
-  BuildContext context,
-  String text,
-) {
-  return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('ERROR'),
-          content: Text(text),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            )
-          ],
-        );
-      });
 }
