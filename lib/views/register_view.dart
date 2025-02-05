@@ -1,12 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapplication/constants/route.dart';
-import 'package:firstapplication/firebase_options.dart';
-import 'package:firstapplication/views/verify_email.dart';
+import 'package:firstapplication/services/auth_services.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 
-// my name is ashish singh and i am flutter developer
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -42,6 +38,7 @@ class _RegisterViewState extends State<RegisterView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Register Page',
           style: TextStyle(
@@ -53,9 +50,7 @@ class _RegisterViewState extends State<RegisterView> {
         backgroundColor: Colors.blue,
       ),
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthServices.firebase().initialize(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             //snapshot is like a async function ,, future hai firebase auth ka tou jab tak vo active nhi hoga tou hum default case mai return krr denge text as 'loading ...' warna tou hum usse column return krr denga
@@ -126,9 +121,10 @@ class _RegisterViewState extends State<RegisterView> {
                         final email = _email.text;
                         final password = _password.text;
                         try {
-                          await FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                  email: email, password: password);
+                          await AuthServices.firebase().createUser(
+                            email: email,
+                            password: password,
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -137,8 +133,7 @@ class _RegisterViewState extends State<RegisterView> {
                               backgroundColor: Colors.blue,
                             ),
                           );
-                          final user = FirebaseAuth.instance.currentUser;
-                          await user?.sendEmailVerification();
+                          await AuthServices.firebase().sendEmailVerification();
                           // // we didnot use pushNamedAndRemoveUntil because we still want to have register view on
                           // the back of the email verify view so that if in case the user enters a wrong email
                           // he/she can easily go back using the back button present at the top of appbar

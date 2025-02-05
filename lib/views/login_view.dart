@@ -1,12 +1,12 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firstapplication/firebase_options.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapplication/constants/route.dart';
-import 'package:firstapplication/firebase_options.dart';
+import 'package:firstapplication/services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
-import 'package:firstapplication/utilities/show_error_dialog.dart'; // currently it is not used
+// currently it is not used
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -54,9 +54,7 @@ class _LoginViewState extends State<LoginView> {
         backgroundColor: Colors.blue,
       ),
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthServices.firebase().initialize(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -116,13 +114,12 @@ class _LoginViewState extends State<LoginView> {
                           final password = _password.text;
                           try {
                             // ignore: non_constant_identifier_names
-                            final usercredentials = await FirebaseAuth.instance
-                                .signInWithEmailAndPassword(
+                            await AuthServices.firebase().logIn(
                               email: email,
                               password: password,
                             );
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user?.emailVerified ?? false) {
+                            final user = AuthServices.firebase().currentUser;
+                            if (user?.isEmailVerified ?? false) {
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   notesroute, (route) => false);
                             } else {
@@ -139,7 +136,7 @@ class _LoginViewState extends State<LoginView> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Logged in as ${usercredentials.user?.email}',
+                                  'Logged in',
                                 ),
                                 backgroundColor: Colors.blue,
                               ),
