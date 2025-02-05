@@ -1,18 +1,18 @@
 //login exceptions
 
-class usernotfoundauthexpection implements Exception {}
+class UserNotFoundAuthException implements Exception {}
 
-class wrongpasswordauthexception implements Exception {}
+class WrongPasswordAuthException implements Exception {}
 
 //register exceptions
-class weakpasswordauthexception implements Exception {}
+class WeakPasswordAuthException implements Exception {}
 
-class emailalreadyinuseauthexception implements Exception {}
+class EmailAlreadyInUseAuthException implements Exception {}
 
-class invalidemailauthexception implements Exception {}
+class InvalidEmailAuthException implements Exception {}
 
 //generic exceptions
-class genericauthexception implements Exception {}
 
-class usernotloggedinauthexception implements Exception {}
-  
+class GenericAuthException implements Exception {}
+
+class UserNotLoggedInAuthException implements Exception {}
