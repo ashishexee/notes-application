@@ -1,4 +1,5 @@
 //as we only need join from path package not all the functions
+import 'dart:async';
 import 'package:firstapplication/services/crud/crud_exceptions.dart';
 import 'package:flutter/foundation.dart'; //for using immutable and overrides
 import 'package:sqflite/sqflite.dart';
@@ -9,10 +10,34 @@ class NotesServices {
   Database? _db;
   Database _getdatabaseorthrow() {
     final db = _db;
-    if (db == null)
+    if (db == null) {
       throw databaseisnotopened();
-    else
+    } else {
       return db;
+    }
+  }
+
+// kisi bhi variable ya function ya class ke agai underscore dalne se _ ko ek
+// private function bann jta hai
+  List<DatabaseNote> _notes = [];
+  final _notestreamcontroller =
+      StreamController<List<DatabaseNote>>.broadcast();
+  Future<void> _cachenotes() async {
+    final allnotes = await getallnotes();
+    _notes = allnotes.toList();
+    _notestreamcontroller.add(_notes);
+  }
+
+  Future<DatabaseUser> getorcreateuser({required String email}) async {
+    try {
+      final user = await getuser(email: email);
+      return user;
+    } on couldnotfinduser {
+      final createduser = await createuser(email: email);
+      return createduser;
+    } catch (e) {
+      rethrow; //great to use this if you want to debug your application later
+    }
   }
 
   Future<DatabaseNote> updatenote({
@@ -28,7 +53,11 @@ class NotesServices {
     if (updatecount == 0) {
       throw couldnotupdatenote();
     } else {
-      return await getnote(id: note.id);
+      final updatednote = await getnote(id: note.id);
+      _notes.removeWhere((note) => note.id == updatednote.id);
+      _notes.add(note);
+      _notestreamcontroller.add(_notes);
+      return updatednote;
     }
   }
 
@@ -43,11 +72,15 @@ class NotesServices {
     if (result.isEmpty) {
       throw couldnotfindnote();
     } else {
-      return DatabaseNote.fromRow(result.first);
+      final note = DatabaseNote.fromRow(result.first);
+      _notes.removeWhere((note) => note.id == id);
+      _notes.add(note);
+      _notestreamcontroller.add(_notes);
+      return note;
     }
   }
 
-  Future<Iterable<DatabaseNote>> getAllNotes() async {
+  Future<Iterable<DatabaseNote>> getallnotes() async {
     final db = _getdatabaseorthrow();
     final result = await db.query(notetable);
     return result.map((row) => DatabaseNote.fromRow(row)).toList();
@@ -56,7 +89,10 @@ class NotesServices {
 // future int use kra kyuki ye hume return krega the number of rows affected
   Future<int> deleteallnotes() async {
     final db = _getdatabaseorthrow();
-    return await db.delete(notetable);
+    final numberofdeletions = await db.delete(notetable);
+    _notes = []; // reset the cached notes by making it a empty list
+    _notestreamcontroller.add(_notes); // reseting the notesstreamcontroller too
+    return numberofdeletions;
   }
 
   Future<DatabaseNote> createnote({required DatabaseUser owner}) async {
@@ -76,6 +112,8 @@ class NotesServices {
         userid: owner.id.toString(),
         text: text,
         issyncedwithcloud: true);
+    _notes.add(note);
+    _notestreamcontroller.add(_notes);
     return note;
   }
 
@@ -89,6 +127,9 @@ class NotesServices {
     );
     if (deletecount == 0) {
       throw couldnotdelete();
+    } else {
+      _notes.removeWhere((note) => note.id == id);
+      _notestreamcontroller.add(_notes);
     }
   }
 
@@ -155,6 +196,7 @@ class NotesServices {
       await db.execute(createusertable);
       //creating notestable
       await db.execute(createnotetable);
+      await _cachenotes();
     } on MissingPlatformDirectoryException {
       // this is the exception that getapplicationdocdir throws
       throw unabletogetdocemntdirectory();
