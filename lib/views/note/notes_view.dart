@@ -33,28 +33,41 @@ class _NotesViewState extends State<NotesView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Home Page'),
+        title: const Text(
+          'Your Notes',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         actions: [
+          IconButton(
+              onPressed: () {
+          Navigator.of(context).pushNamed(newnoteroute);
+              },
+              icon: const Icon(Icons.add, color: Colors.white)),
           PopupMenuButton<MenuAction>(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
             onSelected: (value) async {
               switch (value) {
-                case MenuAction.logout:
-                  final shouldlogout = await showlogoutdialog(context);
-                  if (shouldlogout == true) {
-                    await AuthServices.firebase().logOut();
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(loginroute, (_) => true);
-                  }
-                  break;
+          case MenuAction.logout:
+            final shouldlogout = await showlogoutdialog(context);
+            if (shouldlogout == true) {
+              await AuthServices.firebase().logOut();
+              Navigator.of(context)
+            .pushNamedAndRemoveUntil(loginroute, (_) => true);
+            }
+            break;
               }
               devtools.log(value.toString());
             },
             itemBuilder: (context) {
               return [
-                const PopupMenuItem<MenuAction>(
-                  value: MenuAction.logout,
-                  child: Text('Logout'),
-                ),
+          const PopupMenuItem<MenuAction>(
+            value: MenuAction.logout,
+            child: Text('Logout'),
+          ),
               ];
             },
           ),
@@ -72,7 +85,8 @@ class _NotesViewState extends State<NotesView> {
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
-                        return const Text("waiting for getting all notes.....dumbass");
+                        return const Text(
+                            "waiting for getting all notes.....dumbass");
                       default:
                         return const CircularProgressIndicator();
                     }
