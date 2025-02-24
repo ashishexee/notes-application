@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
-import 'package:firstapplication/views/notes_view.dart';
+import 'package:firstapplication/views/note/new_notes_view.dart';
+import 'package:firstapplication/views/note/notes_view.dart';
 import 'package:firstapplication/views/register_view.dart';
 import 'package:firstapplication/views/login_view.dart';
 import 'package:firstapplication/views/verify_email.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 // agar sirf dart:developer import krte tou sari cheeje jo uss library mai hai
 // vo bhi sath aa jati prr agar apko sirf kuch specific part he chaiye apne code mai tou you can do
-
 //hot reload se jo bhi changes apne void main() ke andar kare honge vo affect nhi honge
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,11 +34,11 @@ class MyApp extends StatelessWidget {
         registerroute: (context) => const RegisterView(),
         notesroute: (context) => const NotesView(),
         emailverifyroute: (context) => const VerifyEmailView(),
+        newnoteroute : (context) => const newnoteview(),
       },
     );
   }
 }
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
