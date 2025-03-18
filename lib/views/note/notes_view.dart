@@ -15,17 +15,11 @@ class NotesView extends StatefulWidget {
 class _NotesViewState extends State<NotesView> {
   late final NotesServices _notesServices;
   String get useremail => AuthServices.firebase().currentUser!.email!;
+
   @override
   void initState() {
     _notesServices = NotesServices();
-    _notesServices.open(); // this will open the database
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _notesServices.close(); // this will close the database
-    super.dispose();
   }
 
   @override
@@ -44,30 +38,30 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           IconButton(
               onPressed: () {
-          Navigator.of(context).pushNamed(newnoteroute);
+                Navigator.of(context).pushNamed(newnoteroute);
               },
               icon: const Icon(Icons.add, color: Colors.white)),
           PopupMenuButton<MenuAction>(
             icon: const Icon(Icons.more_vert, color: Colors.white),
             onSelected: (value) async {
               switch (value) {
-          case MenuAction.logout:
-            final shouldlogout = await showlogoutdialog(context);
-            if (shouldlogout == true) {
-              await AuthServices.firebase().logOut();
-              Navigator.of(context)
-            .pushNamedAndRemoveUntil(loginroute, (_) => true);
-            }
-            break;
+                case MenuAction.logout:
+                  final shouldlogout = await showlogoutdialog(context);
+                  if (shouldlogout == true) {
+                    await AuthServices.firebase().logOut();
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil(loginroute, (_) => false);
+                  }
+                  break;
               }
               devtools.log(value.toString());
             },
             itemBuilder: (context) {
               return [
-          const PopupMenuItem<MenuAction>(
-            value: MenuAction.logout,
-            child: Text('Logout'),
-          ),
+                const PopupMenuItem<MenuAction>(
+                  value: MenuAction.logout,
+                  child: Text('Logout'),
+                ),
               ];
             },
           ),
@@ -75,24 +69,51 @@ class _NotesViewState extends State<NotesView> {
         backgroundColor: Colors.blue,
       ),
       body: FutureBuilder(
-        // its like a promise in javascript
         future: _notesServices.getorcreateuser(email: useremail),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               return StreamBuilder(
-                  stream: _notesServices.allnotes,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return const Text(
-                            "waiting for getting all notes.....dumbass");
-                      default:
-                        return const CircularProgressIndicator();
-                    }
-                  });
+                stream: _notesServices.allnotes,
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                    case ConnectionState.active:
+                      if (snapshot.hasData) {
+                        final allnotes = snapshot.data as List<DatabaseNote>;
+                        devtools.log('Fetched ${allnotes.length} notes');
+                        return ListView.builder(
+                          itemCount: allnotes.length,
+                          itemBuilder: (context, index) {
+                            final note = allnotes[index];
+                            return ListTile(
+                              title: Text(
+                                note.text,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              onTap: () {
+                                // Navigate to edit note view
+                                Navigator.of(context).pushNamed(
+                                  newnoteroute,
+                                  arguments: note,
+                                );
+                              },
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                          child: Text('No Notes Yet'),
+                        );
+                      }
+                    default:
+                      return const CircularProgressIndicator();
+                  }
+                },
+              );
             default:
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
           }
         },
       ),
@@ -100,7 +121,7 @@ class _NotesViewState extends State<NotesView> {
   }
 }
 
-// creating a dialog box for checking for user confirmation
+// Creating a dialog box for checking user confirmation
 Future<bool> showlogoutdialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
@@ -115,34 +136,20 @@ Future<bool> showlogoutdialog(BuildContext context) {
         ),
         content: const Text(
           'Are you sure you want to logout?',
-          style: TextStyle(
-            fontSize: 16,
-          ),
+          style: TextStyle(fontSize: 16),
         ),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context)
-                  .pop(false); // will return false if user chooses cancel
+              Navigator.of(context).pop(false); // Return false if cancel
             },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(
-                  true); // will return a future of true if user chooses log out
+              Navigator.of(context).pop(true); // Return true if logout
             },
-            child: const Text(
-              'Log Out',
-              style: TextStyle(
-                color: Colors.blue,
-              ),
-            ),
+            child: const Text('Log Out', style: TextStyle(color: Colors.blue)),
           ),
         ],
       );
