@@ -9,17 +9,18 @@ import 'package:firstapplication/views/login_view.dart';
 import 'package:firstapplication/views/verify_email.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
-// agar sirf dart:developer import krte tou sari cheeje jo uss library mai hai
-// vo bhi sath aa jati prr agar apko sirf kuch specific part he chaiye apne code mai tou you can do
-//hot reload se jo bhi changes apne void main() ke andar kare honge vo affect nhi honge
-void main() {
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,40 +34,40 @@ class MyApp extends StatelessWidget {
         loginroute: (context) => const LoginView(),
         registerroute: (context) => const RegisterView(),
         notesroute: (context) => const NotesView(),
-        emailverifyroute: (context) => const VerifyEmailView(),
-        newnoteroute : (context) => const newnoteview(),
+        emailverifyroute:   (context) => const VerifyEmailView(),
+        newnoteroute: (context) => const NewNoteView(),
       },
     );
   }
 }
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              final user = FirebaseAuth.instance.currentUser;
-              print(user);
-              if (user != null) {
-                if (user.emailVerified) {
-                  return const NotesView();
-                } else {
-                  devtools.log('hey not verified you are');
-                  return const VerifyEmailView();
-                }
+      future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null) {
+              if (user.emailVerified) {
+                return const NotesView();
               } else {
-                return LoginView();
+                devtools.log('hey not verified you are');
+                return const VerifyEmailView();
               }
-              return const Text('Done');
-            default:
-              return const CircularProgressIndicator();
-          }
-        });
+            } else {
+              return const LoginView();
+            }
+          default:
+            return const CircularProgressIndicator();
+        }
+      },
+    );
   }
 }
