@@ -13,3 +13,5 @@ class databaseisnotopened implements Exception {}
 class couldnotdelete implements Exception {}
 
 class useralreadyexists implements Exception {}
+
+class usershouldbesetbeforereadingallnotes implements Exception {}
