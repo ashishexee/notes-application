@@ -123,7 +123,7 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(newnoteroute);
+                Navigator.of(context).pushNamed(createorupdatenoteroute);
               },
               icon: const Icon(Icons.add, color: Colors.white)),
           PopupMenuButton<MenuAction>(
@@ -205,8 +205,8 @@ class _NotesViewState extends State<NotesView> {
                                                 vertical: 8, horizontal: 16),
                                         title: Text(
                                           note.text,
-                                          maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w500,
@@ -222,11 +222,17 @@ class _NotesViewState extends State<NotesView> {
                                             color: Colors.blue,
                                           ),
                                         ),
-                                        onTap: () {
-                                          Navigator.of(context).pushNamed(
-                                            newnoteroute,
+                                        onTap: () async {
+                                          final updatedNote =
+                                              await Navigator.of(context)
+                                                  .pushNamed(
+                                            createorupdatenoteroute,
                                             arguments: note,
                                           );
+                                          if (updatedNote != null) {
+                                            setState(
+                                                () {}); // Refresh the UI after returning from editing
+                                          }
                                         },
                                       ),
                                     ),
