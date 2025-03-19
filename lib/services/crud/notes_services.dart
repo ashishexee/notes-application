@@ -1,5 +1,6 @@
 //as we only need join from path package not all the functions
 import 'dart:async';
+import 'package:firstapplication/extensions/list/filter.dart';
 import 'package:firstapplication/services/auth_services.dart';
 import 'package:firstapplication/services/crud/crud_exceptions.dart';
 import 'package:flutter/foundation.dart'; //for using immutable and overrides
@@ -10,6 +11,8 @@ import 'dart:developer' as developer;
 
 class NotesServices {
   Database? _db;
+  List<DatabaseNote> _notes = [];
+  DatabaseUser? _user;
   Database _getdatabaseorthrow() {
     final db = _db;
     if (db == null) {
@@ -25,7 +28,7 @@ class NotesServices {
   // whenever someone is calling _notesservices it is not creating a new instance but returning the same instance again and again
   // making our code more optimized
   static final NotesServices _shared = NotesServices._sharedinstance();
-  NotesServices._sharedinstance() {
+  NotesServices._sharedinstance() : _user = DatabaseUser(id: 0, email: '') {
     _notestreamcontroller =
         StreamController<List<DatabaseNote>>.broadcast(onListen: () {
       _notestreamcontroller.sink.add(_notes);
@@ -36,9 +39,17 @@ class NotesServices {
 
 // kisi bhi variable ya function ya class ke agai underscore dalne se _ ko ek
 // private function bann jta hai
-  List<DatabaseNote> _notes = [];
-  Stream<List<DatabaseNote>> get allnotes => _notestreamcontroller
-      .stream; // this will get all the notes from the previously created _notestreamcontroller
+// its like basically saying
+// stream<something>  = name.filter((note) { if true => kept , else if false => discarded })
+  Stream<List<DatabaseNote>> get allnotes =>
+      _notestreamcontroller.stream.filter((note) {
+        final currentuser = _user;
+        if (currentuser != null) {
+          return note.userid == currentuser.id;
+        } else {
+          throw usershouldbesetbeforereadingallnotes();
+        }
+      }); // this will get all the notes from the previously created _notestreamcontroller
   Future<void> _cachenotes() async {
     final allnotes = await getallnotes();
 
@@ -57,12 +68,21 @@ class NotesServices {
     }
   }
 
-  Future<DatabaseUser> getorcreateuser({required String email}) async {
+  Future<DatabaseUser> getorcreateuser({
+    required String email,
+    bool setascurrentuser = true,
+  }) async {
     try {
       final user = await getuser(email: email);
+      if (setascurrentuser) {
+        _user = user;
+      }
       return user;
     } on couldnotfinduser {
       final createduser = await createuser(email: email);
+      if (setascurrentuser) {
+        _user = createduser;
+      }
       return createduser;
     } catch (e) {
       rethrow; //great to use this if you want to debug your application later
@@ -313,7 +333,7 @@ class DatabaseUser {
 class DatabaseNote {
   final int id;
   final int userid;
-  final String text;
+  late final String text;
   final bool issyncedwithcloud;
 
   DatabaseNote({
