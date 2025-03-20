@@ -1,5 +1,4 @@
 // extension is basically the feature that allows you to add more functionality to a class without modifying the existing class
-import 'package:flutter/material.dart';
 
 extension Filter<T> on Stream<List<T>> {
   // this line tells us that we need to put the filter onto the stream of list of T
