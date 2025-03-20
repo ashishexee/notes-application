@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firstapplication/services/cloud/cloud_note.dart';
 import 'package:firstapplication/services/cloud/cloud_storage_constants.dart';
 import 'package:firstapplication/services/cloud/cloud_storage_exceptions.dart';
-import 'package:firstapplication/services/crud/crud_exceptions.dart';
 
 class FirebaseCloudStorage {
   final notes = FirebaseFirestore.instance.collection('notes');
@@ -17,17 +16,18 @@ class FirebaseCloudStorage {
     try {
       await notes.doc(deocumentid).update({textfieldname: text});
     } catch (e) {
-      throw couldnotupdatenote();
+      throw Couldnotupdatenoteexception();
     }
   }
- // to delete the note
+
+  // to delete the note
   Future<void> deletenote({
     required documentid,
   }) async {
     try {
       await notes.doc(documentid).delete();
     } catch (e) {
-      throw couldnotdelete();
+      throw Couldnotdeletenoteexception();
     }
   }
 
@@ -53,23 +53,22 @@ class FirebaseCloudStorage {
             isEqualTo: owneruserid,
           )
           .get() // this will extract and fetch the results from the firebase database(one time) need to manually run again to fetch the desired notes
-          .then((value) => value.docs.map((doc) {
-                // doc => list of document snapshots
-                return CloudNote(
-                    documentid: doc.id,
-                    owneruserid: doc.data()[owneruseridfieldname] as String,
-                    text: doc.data()[textfieldname]);
-              }));
+          .then(
+            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
+          );
     } catch (e) {
       throw CouldNotgetallnotesexception();
     }
   }
 
-  void createnewnote({required String owneruserid}) async {
-    await notes.add({
+  Future<CloudNote> createnewnote({required String owneruserid}) async {
+    final document = await notes.add({
       owneruseridfieldname: owneruserid,
       textfieldname: '',
     });
+    final fetchednote = await document.get();
+    return CloudNote(
+        documentid: fetchednote.id, owneruserid: owneruserid, text: ' ');
   }
 // we have made our class a singelton design pattern this design pattern is made such that
 // only one instance of firebasecloudstorage exist across the whole application lifecycle
