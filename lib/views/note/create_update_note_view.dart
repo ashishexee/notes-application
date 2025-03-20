@@ -1,8 +1,9 @@
 import 'package:firstapplication/services/auth_services.dart';
-import 'package:firstapplication/services/crud/notes_services.dart';
 import 'package:firstapplication/utilities/generics/get_argument.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
+import 'package:firstapplication/services/cloud/cloud_note.dart';
+import 'package:firstapplication/services/cloud/firestore_cloud_storage.dart';
 
 class CreateUpdateNoteView extends StatefulWidget {
   const CreateUpdateNoteView({super.key});
@@ -12,21 +13,21 @@ class CreateUpdateNoteView extends StatefulWidget {
 }
 
 class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
-  DatabaseNote? _note;
-  late final NotesServices _notesservices;
+  CloudNote? _note;
+  late final FirebaseCloudStorage _notesservices;
   late final TextEditingController _textcontroller;
 
   @override
   void initState() {
-    _notesservices = NotesServices();
+    _notesservices = FirebaseCloudStorage();
     _textcontroller = TextEditingController();
     super.initState();
   }
- 
+
   @override // to edit the note
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final existingNote = context.getArgument<DatabaseNote>();
+    final existingNote = context.getArgument<CloudNote>();
     if (existingNote != null) {
       _note = existingNote;
       _textcontroller.text = existingNote.text; // Pre-fill text field
@@ -45,25 +46,24 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     final note = _note;
     if (note == null) return;
     final text = _textcontroller.text;
-    await _notesservices.updatenote(note: note, text: text);
-    devtools.log('Updated note with ID: ${note.id}, new text: $text');
+    await _notesservices.updatenote(deocumentid: note.documentid, text: text);
+    devtools.log('Updated note with ID: ${note.documentid}, new text: $text');
   }
 
   Future<void> createNewNote() async {
     final currentUser = AuthServices.firebase().currentUser!;
-    final email = currentUser.email;
-    final owner = await _notesservices.getuser(email: email);
-    final newNote = await _notesservices.createnote(owner: owner);
+    final userid = currentUser.id;
+    final newNote = await _notesservices.createnewnote(owneruserid: userid);
     setState(() {
       _note = newNote;
     });
-    devtools.log('Created new note with ID: ${newNote.id}');
+    devtools.log('Created new note with ID: ${newNote.documentid}');
   }
 
   void _deleteNoteIfEmpty() {
     if (_textcontroller.text.isEmpty && _note != null) {
-      _notesservices.deletenote(id: _note!.id);
-      devtools.log('Deleted empty note with ID: ${_note!.id}');
+      _notesservices.deletenote(documentid: _note!.documentid);
+      devtools.log('Deleted empty note with ID: ${_note!.documentid}');
     }
   }
 

@@ -1,7 +1,8 @@
 import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/enums/menu_action.dart';
 import 'package:firstapplication/services/auth_services.dart';
-import 'package:firstapplication/services/crud/notes_services.dart';
+import 'package:firstapplication/services/cloud/cloud_note.dart';
+import 'package:firstapplication/services/cloud/firestore_cloud_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
@@ -13,16 +14,16 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
-  late final NotesServices _notesServices;
-  String get useremail => AuthServices.firebase().currentUser!.email;
+  late final FirebaseCloudStorage _notesServices;
+  String get userid => AuthServices.firebase().currentUser!.id;
 
   @override
   void initState() {
-    _notesServices = NotesServices();
+    _notesServices = FirebaseCloudStorage();
     super.initState();
   }
 
-  void _deletenote(context, int noteid) async {
+  void _deletenote(context, CloudNote note) async {
     await showDialog(
       context: context,
       builder: (context) {
@@ -84,7 +85,7 @@ class _NotesViewState extends State<NotesView> {
               ),
               TextButton(
                 onPressed: () {
-                  _notesServices.deletenote(id: noteid);
+                  _notesServices.deletenote(documentid: note.documentid);
                   controller.reverse().then((_) {
                     Navigator.of(context).pop(true);
                   });
@@ -110,164 +111,147 @@ class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Your Notes',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text(
+            'Your Notes',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(createorupdatenoteroute);
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(createorupdatenoteroute);
+                },
+                icon: const Icon(Icons.add, color: Colors.white)),
+            PopupMenuButton<MenuAction>(
+              icon: const Icon(Icons.more_vert, color: Colors.white),
+              onSelected: (value) async {
+                switch (value) {
+                  case MenuAction.logout:
+                    final shouldlogout = await showlogoutdialog(context);
+                    if (shouldlogout == true) {
+                      await AuthServices.firebase().logOut();
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil(loginroute, (_) => false);
+                    }
+                    break;
+                }
+                devtools.log(value.toString());
               },
-              icon: const Icon(Icons.add, color: Colors.white)),
-          PopupMenuButton<MenuAction>(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onSelected: (value) async {
-              switch (value) {
-                case MenuAction.logout:
-                  final shouldlogout = await showlogoutdialog(context);
-                  if (shouldlogout == true) {
-                    await AuthServices.firebase().logOut();
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(loginroute, (_) => false);
-                  }
-                  break;
-              }
-              devtools.log(value.toString());
-            },
-            itemBuilder: (context) {
-              return [
-                const PopupMenuItem<MenuAction>(
-                  value: MenuAction.logout,
-                  child: Text('Logout'),
-                ),
-              ];
-            },
-          ),
-        ],
-        backgroundColor: Colors.blue,
-      ),
-      body: FutureBuilder(
-        future: _notesServices.getorcreateuser(email: useremail),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return StreamBuilder(
-                stream: _notesServices.allnotes,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      if (snapshot.hasData) {
-                        final allnotes = snapshot.data as List<DatabaseNote>;
-                        devtools.log('Fetched ${allnotes.length} notes');
-                        return ListView.builder(
-                          padding: const EdgeInsets.all(16.0),
-                          itemCount: allnotes.length,
-                          itemBuilder: (context, index) {
-                            final note = allnotes[index];
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                bool isHovered = false;
-                                return MouseRegion(
-                                  onEnter: (_) {
-                                    setState(() {
-                                      isHovered = true;
-                                    });
-                                  },
-                                  onExit: (_) {
-                                    setState(() {
-                                      isHovered = false;
-                                    });
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    transform: isHovered
-                                        ? (Matrix4.identity()
-                                          ..translate(0, -10, 0))
-                                        : Matrix4.identity(),
-                                    child: Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      elevation: 4,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 8, horizontal: 16),
-                                        title: Text(
-                                          note.text,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        trailing: IconButton(
-                                          onPressed: () {
-                                            _deletenote(context, note.id);
-                                            setState(() {});
-                                          },
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                        onTap: () async {
-                                          final updatedNote =
-                                              await Navigator.of(context)
-                                                  .pushNamed(
-                                            createorupdatenoteroute,
-                                            arguments: note,
-                                          );
-                                          if (updatedNote != null) {
-                                            setState(
-                                                () {}); // Refresh the UI after returning from editing
-                                          }
-                                        },
-                                      ),
+              itemBuilder: (context) {
+                return [
+                  const PopupMenuItem<MenuAction>(
+                    value: MenuAction.logout,
+                    child: Text('Logout'),
+                  ),
+                ];
+              },
+            ),
+          ],
+          backgroundColor: Colors.blue,
+        ),
+        body: StreamBuilder(
+          stream: _notesServices.allnotes(owneruserid: userid),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+              case ConnectionState.active:
+                if (snapshot.hasData) {
+                  final allnotes = snapshot.data as Iterable<CloudNote>;
+                  devtools.log('Fetched ${allnotes.length} notes');
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: allnotes.length,
+                    itemBuilder: (context, index) {
+                      final note = allnotes.elementAt(index);
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          bool isHovered = false;
+                          return MouseRegion(
+                            onEnter: (_) {
+                              setState(() {
+                                isHovered = true;
+                              });
+                            },
+                            onExit: (_) {
+                              setState(() {
+                                isHovered = false;
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              transform: isHovered
+                                  ? (Matrix4.identity()..translate(0, -10, 0))
+                                  : Matrix4.identity(),
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 16),
+                                  title: Text(
+                                    note.text,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                );
-                              },
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text(
-                            'No Notes Yet',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
+                                  trailing: IconButton(
+                                    onPressed: () {
+                                      _deletenote(context, note);
+                                      setState(() {});
+                                    },
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    final updatedNote =
+                                        await Navigator.of(context).pushNamed(
+                                      createorupdatenoteroute,
+                                      arguments: note,
+                                    );
+                                    if (updatedNote != null) {
+                                      setState(
+                                          () {}); // Refresh the UI after returning from editing
+                                    }
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                    default:
-                      return const Center(
-                        child: CircularProgressIndicator(),
+                          );
+                        },
                       );
-                  }
-                },
-              );
-            default:
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-          }
-        },
-      ),
-    );
+                    },
+                  );
+                } else {
+                  return const Center(
+                    child: Text(
+                      'No Notes Yet',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }
+              default:
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+            }
+          },
+        ));
   }
 }
 
