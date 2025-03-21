@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 import 'package:firstapplication/services/cloud/cloud_note.dart';
 import 'package:firstapplication/services/cloud/firestore_cloud_storage.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CreateUpdateNoteView extends StatefulWidget {
   const CreateUpdateNoteView({super.key});
@@ -83,6 +84,26 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
           'Edit Note',
           style: TextStyle(color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final text = _textcontroller.text;
+              if (_note == null || text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Cannot SHARE an empty Note',
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else {
+                Share.share(text);
+              }
+            },
+            icon: const Icon(Icons.share),  
+          )
+        ],
         backgroundColor: Colors.blue,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
