@@ -4,8 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/firebase_options.dart';
+import 'package:firstapplication/services/auth/bloc/auth_bloc.dart';
+import 'package:firstapplication/services/auth/bloc/auth_events.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -113,6 +117,12 @@ class _LoginViewState extends State<LoginView> {
                           final email = _email.text;
                           final password = _password.text;
                           try {
+                            context.read<AuthBloc>().add(
+                                  Loggedinevent(
+                                    email,
+                                    password,
+                                   ),
+                                );
                             // ignore: non_constant_identifier_names
                             final usercredentials = await FirebaseAuth.instance
                                 .signInWithEmailAndPassword(
@@ -182,9 +192,8 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
- 
- 
- // i havent used this future as i already had a better way to display the error(may be will do in register view)
+
+// i havent used this future as i already had a better way to display the error(may be will do in register view)
 Future<void> showerrordialog(
   BuildContext context,
   String text,
