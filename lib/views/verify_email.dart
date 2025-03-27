@@ -13,6 +13,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[50], // Light background color
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
@@ -24,61 +25,93 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
           ),
         ),
         backgroundColor: Colors.blue,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.email,
-                size: 80,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 20),
-              const Text("We've send you a confirmation. Check your inbox"),
-              const Text(
-                "Did not recieve? Resend",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Icon(
+                  Icons.email_outlined,
+                  size: 100,
+                  color: Colors.blue,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () async {
-                 await AuthServices.firebase().sendEmailVerification();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
+                const SizedBox(height: 20),
+                const Text(
+                  "We've sent you a confirmation email.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
-                  backgroundColor: Colors.blue,
                 ),
-                child: const Text(
-                  'Re-Send Email',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                const SizedBox(height: 10),
+                const Text(
+                  "Please check your inbox and click the link to verify your email address.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await AuthServices.firebase().logOut();
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    registerroute,
-                    (route) => false,
-                  );
-                },
-                child: const Text('Restart'),
-              )
-            ],
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () async {
+                    await AuthServices.firebase().sendEmailVerification();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Verification email resent.'),
+                        backgroundColor: Colors.blue,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                    ),
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Re-Send Email',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () async {
+                    await AuthServices.firebase().logOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      registerroute,
+                      (route) => false,
+                    );
+                  },
+                  child: const Text(
+                    'Restart',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-
 }

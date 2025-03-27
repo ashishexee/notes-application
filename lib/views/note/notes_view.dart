@@ -2,6 +2,7 @@ import 'package:firstapplication/constants/route.dart';
 import 'package:firstapplication/enums/menu_action.dart';
 import 'package:firstapplication/services/auth/bloc/auth_bloc.dart';
 import 'package:firstapplication/services/auth/bloc/auth_events.dart';
+import 'package:firstapplication/services/auth/bloc/auth_state.dart';
 import 'package:firstapplication/services/auth_services.dart';
 import 'package:firstapplication/services/cloud/cloud_note.dart';
 import 'package:firstapplication/services/cloud/firestore_cloud_storage.dart';
@@ -114,7 +115,16 @@ class _NotesViewState extends State<NotesView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is Loggedout) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            loginroute,
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
           title: const Text(
@@ -128,7 +138,8 @@ class _NotesViewState extends State<NotesView> {
           actions: [
             IconButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed(createorupdatenoteroute);
+                  Navigator.of(context)
+                      .pushNamed(createorupdatenoteroute, arguments: null);
                 },
                 icon: const Icon(Icons.add, color: Colors.white)),
             PopupMenuButton<MenuAction>(
@@ -140,7 +151,7 @@ class _NotesViewState extends State<NotesView> {
                     if (shouldlogout == true) {
                       context.read<AuthBloc>().add(
                             Loggedoutevent(),
-                          ); 
+                          );
                     }
                     break;
                 }
@@ -255,7 +266,9 @@ class _NotesViewState extends State<NotesView> {
                 );
             }
           },
-        ));
+        ),
+      ),
+    );
   }
 }
 
