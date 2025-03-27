@@ -30,24 +30,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return BlocProvider<AuthBloc>(
+      create: (context) => AuthBloc(FirebaseAuthProvider()),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const HomePage(),
+        routes: {
+          loginroute: (context) => const LoginView(),
+          registerroute: (context) => const RegisterView(),
+          notesroute: (context) => const NotesView(),
+          emailverifyroute: (context) => const VerifyEmailView(),
+          createorupdatenoteroute: (context) => const CreateUpdateNoteView(),
+        },
       ),
-      home: BlocProvider<AuthBloc>(
-        create: (context) => AuthBloc(
-            FirebaseAuthProvider()), // in this line the context is now embedded into our authbloc and it will not pollulate throughout the application
-        child: const HomePage(),
-      ),
-      routes: {
-        loginroute: (context) => const LoginView(),
-        registerroute: (context) => const RegisterView(),
-        notesroute: (context) => const NotesView(),
-        emailverifyroute: (context) => const VerifyEmailView(),
-        createorupdatenoteroute: (context) => const CreateUpdateNoteView(),
-      },
     );
   }
 }
@@ -58,22 +57,42 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const Autheventsinitialize());
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is Loggedin) {
-          return NotesView();
-        } else if (state is Userneedverification) {
-          return VerifyEmailView();
-        } else if (state is Loggedout) {
-          return LoginView();
-        } else {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is Loggedout) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            loginroute,
+            (route) => false,
           );
         }
       },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is Loggedin) {
+            return NotesView();
+          } else if (state is Userneedverification) {
+            return VerifyEmailView();
+          } else if (state is Loggedout) {
+            return LoginView();
+          } else if (state is Authstateregistering) {
+            return const RegisterView();
+          } else {
+            return const Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 20),
+                    Text('Loading...'),
+                  ],
+                ),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
