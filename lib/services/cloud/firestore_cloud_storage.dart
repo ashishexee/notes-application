@@ -36,29 +36,11 @@ class FirebaseCloudStorage {
 // .snapshots()	 Automatically on any change	  No (auto-updates)	 Real-time listening
 // for continous watch to see all the changes need to use stream
   Stream<Iterable<CloudNote>> allnotes({required String owneruserid}) {
-    return notes.snapshots().map((event) =>
-        event.docs.map((doc) => CloudNote.fromSnapshot(doc)).where((note) {
-          return note.owneruserid == owneruserid;
-        }));
-  }
-
-//for one time below :
-  Future<Iterable<CloudNote>> getnote({required String owneruserid}) async {
-    // this is basically like a one time thing
-    try {
-      return await notes
-          .where(
-            // how(which) data you want to retrieve from the firebase firestore database
-            owneruseridfieldname,
-            isEqualTo: owneruserid,
-          )
-          .get() // this will extract and fetch the results from the firebase database(one time) need to manually run again to fetch the desired notes
-          .then(
-            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
-          );
-    } catch (e) {
-      throw CouldNotgetallnotesexception();
-    }
+    final AllNotes = notes
+        .where(owneruseridfieldname, isEqualTo: owneruserid)
+        .snapshots()
+        .map((event) => event.docs.map((doc) => CloudNote.fromSnapshot(doc)));
+    return AllNotes;
   }
 
   Future<CloudNote> createnewnote({required String owneruserid}) async {
