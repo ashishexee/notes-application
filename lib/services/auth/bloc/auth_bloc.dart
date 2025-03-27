@@ -2,29 +2,45 @@ import 'package:bloc/bloc.dart';
 import 'package:firstapplication/services/auth/auth_provider.dart';
 import 'package:firstapplication/services/auth/bloc/auth_events.dart';
 import 'package:firstapplication/services/auth/bloc/auth_state.dart';
-// this will create the actual authentication logic of our application
-/// combining both the AuthState and AuthEvents
+
 class AuthBloc extends Bloc<AuthEvents, AuthState> {
-  AuthBloc(AuthProvider provider) : super(const Authstateloading()) {
-    //  the authbloc always need a initial state (basically an initilizer)
-    // we need this piece of code because bloc always need a initilized state
-    // we need to first check if  the user is already logged in and we he is logged in
-    // then we will emit(const LoggedInState);
+  AuthBloc(AuthProvider provider) : super(const AuthStateUninitialized()) {
+    on<Sendemaillverificationevent>(((events, emit) async {
+      await provider.sendEmailVerification();
+      emit(state);
+    }));
+    on<Register>((events, emit) async {
+      final email = events.email;
+      final password = events.password;
+      try {
+        await provider.createUser(
+          email: email,
+          password: password,
+        );
+        await provider.sendEmailVerification();
+        emit(const Userneedverification());
+      } on Exception catch (e) {
+        emit(Authstateregistering(e));
+      }
+    });
     on<Autheventsinitialize>((events, emit) async {
       await provider.initialize();
       final user = provider.currentUser;
       if (user == null) {
-        emit(const Loggedout());
+        emit(
+          const Loggedout(
+            exceptions: null,
+            isloading: false,
+          ),
+        );
       } else if (!user.isEmailVerified) {
         emit(const Userneedverification());
       } else {
         emit(Loggedin(user));
       }
     });
-    // log in
     on<Loggedinevent>((event, emit) async {
-      emit(
-          Authstateloading()); // this is basically to tell the bloc that we are doing something that might take some time
+      emit(const Loggedout(exceptions: null, isloading: true));
       final email = event.email;
       final password = event.password;
       try {
@@ -32,25 +48,34 @@ class AuthBloc extends Bloc<AuthEvents, AuthState> {
           email: email,
           password: password,
         );
-        if (user != null) {
-          emit(Loggedin(user));
+        if (!user!.isEmailVerified) {
+          emit(
+            const Loggedout(
+              exceptions: null,
+              isloading: false,
+            ),
+          );
+          emit(const Userneedverification());
         } else {
-          emit(const Loggedout());
+          emit(
+            Loggedout(
+              exceptions: null,
+              isloading: true,
+            ),
+          );
+          emit(Loggedin(user));
         }
       } on Exception catch (e) {
         final exceptions = e;
-        emit(Logginfailure(exceptions));
+        emit(Loggedout(exceptions: exceptions, isloading: false));
       }
     });
-
-    // handle logout
     on<Loggedoutevent>((event, emit) async {
       try {
-        emit(const Authstateloading());
         await provider.logOut();
-        emit(const Loggedout());
+        emit(Loggedout(exceptions: null, isloading: false));
       } on Exception catch (e) {
-        emit(Loggedoutfailure(e));
+        emit(Loggedout(exceptions: e, isloading: false));
       }
     });
   }

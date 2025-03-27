@@ -16,5 +16,19 @@ class Loggedinevent extends AuthEvents {
 }
 
 class Loggedoutevent extends AuthEvents {
-  const Loggedoutevent();  // we donot need any parameter to logged out the user from the application
+  const Loggedoutevent(); // we donot need any parameter to logged out the user from the application
+}
+
+class Sendemaillverificationevent extends AuthEvents {
+  const Sendemaillverificationevent();
+}
+
+class Register extends AuthEvents {
+  final String email;
+  final String password;
+  const Register(this.email, this.password);
+}
+
+class ShouldRegister extends AuthEvents {
+  const ShouldRegister();
 }
