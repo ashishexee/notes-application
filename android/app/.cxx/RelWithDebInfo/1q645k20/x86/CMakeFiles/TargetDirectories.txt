@@ -1,0 +1,2 @@
+C:/Users/ASUS/dart/firstapplication/android/app/.cxx/RelWithDebInfo/1q645k20/x86/CMakeFiles/edit_cache.dir
+C:/Users/ASUS/dart/firstapplication/android/app/.cxx/RelWithDebInfo/1q645k20/x86/CMakeFiles/rebuild_cache.dir
