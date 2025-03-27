@@ -232,33 +232,6 @@ The application uses the following dependencies:
   
 
 ---
-
-  
-
-##  Screenshots
-
-  
-
-###  Login Screen
-
-![Login Screen](C:\Users\ASUS\dart\firstapplication\assets\screenshots\login_scren.jpg)
-
-  
-
-###  Register Screen
-
-![Notes List](path/to/notes_list_screenshot.png)
-
-  
-
-###  Notes Screen
-
-![Create Note](path/to/create_note_screenshot.png)
-
-  
-
----
-
   
 
 ##  Future Enhancements
