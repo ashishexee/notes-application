@@ -11,6 +11,10 @@ import 'dart:developer' as devtools show log;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+extension Count<T extends Iterable> on Stream<T> {
+  Stream<int> get length => map((events) => events.length);
+}
+
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
 
@@ -127,14 +131,27 @@ class _NotesViewState extends State<NotesView> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text(
-            'Your Notes',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          title: StreamBuilder<Iterable<CloudNote>>(
+              stream: _notesServices.allnotes(owneruserid: userid),
+              builder: (context, AsyncSnapshot<Iterable<CloudNote>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text(
+                    'Loading...',
+                    style: TextStyle(color: Colors.white),
+                  );
+                } else if (snapshot.hasData) {
+                  final noteCount = snapshot.data!.length;
+                  return Text(
+                    'Notes ($noteCount)',
+                    style: const TextStyle(color: Colors.white),
+                  );
+                } else {
+                  return const Text(
+                    'Notes',
+                    style: TextStyle(color: Colors.white),
+                  );
+                }
+              }),
           actions: [
             IconButton(
                 onPressed: () {
