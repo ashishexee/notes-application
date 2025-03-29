@@ -16,6 +16,7 @@ import 'package:firstapplication/views/login_view.dart';
 import 'package:firstapplication/views/verify_email.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,8 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthBloc>(
       create: (context) => AuthBloc(FirebaseAuthProvider()),
       child: MaterialApp(
+        supportedLocales : AppLocalizations.supportedLocales, //  the hindi and english is already made in app_localizations.dart file
+        localizationsDelegates: AppLocalizations.localizationsDelegates, //  this is same like supportedlocals also included in the app_localizations.dart
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

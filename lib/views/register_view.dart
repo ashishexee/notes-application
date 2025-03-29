@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firstapplication/constants/route.dart';
+import 'package:firstapplication/extensions/buildcontext/loc.dart';
 import 'package:firstapplication/services/auth/auth_exception.dart';
 import 'package:firstapplication/services/auth_services.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,8 @@ class _RegisterViewState extends State<RegisterView> {
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Register',
+        title: Text(
+          context.loc.register,
           style: TextStyle(
             color: Colors.white,
             fontSize: 28,
@@ -64,8 +65,8 @@ class _RegisterViewState extends State<RegisterView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
-                            'Create an Account',
+                          Text(
+                            context.loc.create_account,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 24,
@@ -74,8 +75,8 @@ class _RegisterViewState extends State<RegisterView> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Please fill in the details to register',
+                          Text(
+                            context.loc.please_fill,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -89,7 +90,8 @@ class _RegisterViewState extends State<RegisterView> {
                             keyboardType: TextInputType.emailAddress,
                             controller: _email,
                             decoration: InputDecoration(
-                              hintText: 'Enter Your Email',
+                              hintText:
+                                  context.loc.email_text_field_placeholder,
                               prefixIcon: const Icon(Icons.email),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -105,7 +107,8 @@ class _RegisterViewState extends State<RegisterView> {
                             autocorrect: false,
                             controller: _password,
                             decoration: InputDecoration(
-                              hintText: 'Enter Your Password',
+                              hintText:
+                                  context.loc.password_text_field_placeholder,
                               prefixIcon: const Icon(Icons.lock),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -175,8 +178,8 @@ class _RegisterViewState extends State<RegisterView> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              'Register',
+                            child: Text(
+                              context.loc.register,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -192,8 +195,8 @@ class _RegisterViewState extends State<RegisterView> {
                                 (route) => false,
                               );
                             },
-                            child: const Text(
-                              'Already Registered? Click here to login',
+                            child: Text(
+                              context.loc.register_view_already_registered,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.blue,

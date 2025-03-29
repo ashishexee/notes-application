@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapplication/constants/route.dart';
+import 'package:firstapplication/extensions/buildcontext/loc.dart';
 import 'package:firstapplication/firebase_options.dart';
 import 'package:firstapplication/services/auth/bloc/auth_bloc.dart';
 import 'package:firstapplication/services/auth/bloc/auth_events.dart';
@@ -43,8 +44,8 @@ class _LoginViewState extends State<LoginView> {
       backgroundColor: Colors.blue[50], // Light background color
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
-          'Login',
+        title: Text(
+          context.loc.login,
           style: TextStyle(
             color: Colors.white,
             fontSize: 28,
@@ -70,8 +71,8 @@ class _LoginViewState extends State<LoginView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
-                            'Welcome Back!',
+                          Text(
+                            context.loc.welcome,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 24,
@@ -80,8 +81,8 @@ class _LoginViewState extends State<LoginView> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Please login to your account',
+                          Text(
+                            context.loc.login_view_prompt,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -95,7 +96,8 @@ class _LoginViewState extends State<LoginView> {
                             autocorrect: false,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
-                              hintText: 'Enter your email',
+                              hintText:
+                                  context.loc.email_text_field_placeholder,
                               prefixIcon: const Icon(Icons.email),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -111,7 +113,8 @@ class _LoginViewState extends State<LoginView> {
                             enableSuggestions: false,
                             autocorrect: false,
                             decoration: InputDecoration(
-                              hintText: 'Enter your password',
+                              hintText:
+                                  context.loc.password_text_field_placeholder,
                               prefixIcon: const Icon(Icons.lock),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -163,8 +166,8 @@ class _LoginViewState extends State<LoginView> {
                                   ),
                                 );
                               } on FirebaseAuthException catch (e) {
-                                devtools
-                                    .log('error occurred while trying to login');
+                                devtools.log(
+                                    'error occurred while trying to login');
                                 devtools.log(e.code);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -185,8 +188,8 @@ class _LoginViewState extends State<LoginView> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              'Login',
+                            child: Text(
+                              context.loc.login,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -202,8 +205,8 @@ class _LoginViewState extends State<LoginView> {
                                 (route) => false,
                               );
                             },
-                            child: const Text(
-                              'Not Registered? Register Here',
+                            child: Text(
+                              context.loc.login_view_not_registered_yet,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.blue,
