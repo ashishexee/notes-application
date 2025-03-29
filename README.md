@@ -210,6 +210,14 @@ The application uses the following dependencies:
 -  **Logout**: Users can securely log out of their account.
 
   
+### Localization
+
+- **Multi-Language Support**: The app now supports multiple languages, including:
+  - **English** (Default)
+  - **Hindi**
+- **Dynamic Language Switching**: Users can experience the app in their preferred language.
+- **Localized Strings**: All UI text is localized using ARB files (`intl_en.arb` and `intl_hi.arb`).
+
 
 ###  Notes Management
 
